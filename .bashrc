@@ -1,4 +1,4 @@
-# ~/.bashrc | @reineimi | github.com/eimirein
+# ~/.bashrc | @reineimi | github.com/reineimi
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
@@ -33,7 +33,9 @@ alias info='neofetch --ascii ~/.ascii'
 alias add='sudo pacman -S'
 alias del='sudo pacman -Rdd'
 alias wipe='sudo pacman -Rcns'
-alias pgp='gpg recv-keys'
+alias upd='sudo pacman -Syy'
+alias fupd='sudo pacman -Syu'
+alias gpg='gpg --recv-keys'
 
 dbfix() {
 	printf 'Fixing pacman...\n';
@@ -43,10 +45,14 @@ dbfix() {
 }
 
 aur() {
-  mkdir tempgit && cd tempgit;
-  git clone https://aur.archlinux.org/$1.git;
-  cd $1 && makepkg -si;
-  cd && rm -rf tempgit;
+	cd; mkdir tempgit; cd tempgit;
+	git clone https://aur.archlinux.org/$1.git;
+	cd $1 && makepkg -si;
+	echo 'Remove "tempgit"? (y/N)';
+	read yn;
+	if [ "$yn" == 'y' ]; then
+		cd && rm -rf tempgit;
+	fi
 }
 
 # Desktop management
@@ -57,19 +63,19 @@ app() {
   sudo nano /usr/share/applications/$1.desktop;
 }
 
-# Other services
-alias ldm='sudo nano /etc/lightdm/lightdm.conf'
-alias useldm='systemctl disable gdm && systemctl enable lightdm && reboot'
-alias usegdm='systemctl disable lightdm && systemctl enable gdm && reboot'
-alias ggamma='~/Documents/gnome-gamma-tool.py'
-
-pix() {
-	cp -v -n -p -r ~/Downloads/Pixiv/* /media/Pixiv;
-	rm -f ~/Downloads/Pixiv/*;
-}
-
-tgclear() {
-	rm -f ~/Downloads/Telegram\ Desktop/*;
-	rm -rf ~/.local/share/TelegramDesktop/tdata/user_data/*;
-	printf 'Telegram cache cleared\n';
+#Apache
+srv() {
+	if [ $1 == 'on' ]; then
+		sudo systemctl enable httpd;
+		sudo systemctl start httpd;
+		echo 'Apache status: ON';
+	elif [ $1 == 'off' ]; then
+		sudo systemctl stop httpd;
+		sudo systemctl disable httpd;
+		echo 'Apache status: OFF';
+	else
+		sudo systemctl stop httpd;
+		sudo systemctl start httpd;
+		echo 'Apache status: Rebooted, ON';
+	fi
 }
