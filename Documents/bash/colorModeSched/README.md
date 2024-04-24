@@ -11,7 +11,7 @@ Just `cd` to this folder and run the following command as current user:
 bash enable.sh
 ```
 
-## For any other distro/OS
+## For any other DE/distro/OS
 Since this is a Lua script - any other system can run it.<br>
 Just change the commands in the `exec` table accordingly, then include the script in your preferred scheduler.
 
