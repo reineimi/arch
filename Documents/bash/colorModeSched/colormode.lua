@@ -1,11 +1,21 @@
 -- Scripts to execute
+local notify = 1 --Set to 1 or 0 to enable/disable desktop notification
 local exec = {
-	dawn = "gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'",
-	dusk = "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'"
+	set = {
+		light = "gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'",
+		dark = "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'"
+	},
+	get = 'gsettings get org.gnome.desktop.interface color-scheme',
+	notif = 'notify-send "Theme Schedule" "Season: %s, Time: %s, Mode: %s"'
 }
 
+-- Get current theme
+local cur, cur_f = nil, io.popen(exec.get)
+cur = cur_f:read('*a')
+cur_f:close()
+
 -- Timers (by season):
-local dawn, dusk
+local dawn, dusk, season
 local function m()
 	return tonumber(os.date('%m'))
 end
@@ -13,36 +23,44 @@ end
 if (m() >= 01) and (m() <= 03) then
 	dawn = 08.30
 	dusk = 16.30
-	print 'Season: Winter'
+	season = 'Winter'
 end
 
 if (m() >= 04) and (m() <= 06) then
 	dawn = 06.30
 	dusk = 18.30
-	print 'Season: Spring'
+	season = 'Spring'
 end
 
 if (m() >= 07) and (m() <= 09) then
 	dawn = 05.30
 	dusk = 21.30
-	print 'Season: Summer'
+	season = 'Summer'
 end
 
 if (m() >= 10) and (m() <= 12) then
 	dawn = 07.30
 	dusk = 19.30
-	print 'Season: Autumn'
+	season = 'Autumn'
 end
 
 -- Calculation
 local HM = tonumber(os.date('%H.%M'))
-print(HM, dawn, dusk)
+print(season, HM, dawn, dusk)
 
-if (HM >= dawn) and (HM < dusk) then
-	os.execute(exec.dawn)
+if (HM >= dawn) and (HM < dusk) and cur:match('dark') then
+	os.execute(exec.set.light)
 	print 'Color Mode: Light (dawn)'
-else
-	os.execute(exec.dusk)
+	if notify==1 then
+		os.execute(string.format(exec.notif, season, HM, 'Light'))
+	end
+
+elseif (HM > dawn) and (HM >= dusk) and cur:match('light') then
+	os.execute(exec.set.dark)
 	print 'Color Mode: Dark (dusk)'
+	if notify==1 then
+		os.execute(string.format(exec.notif, season, HM, 'Dark'))
+	end
 end
+
 os.exit()
