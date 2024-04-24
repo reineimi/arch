@@ -1,0 +1,9 @@
+[Unit]
+Description=Arch Linux automatic update scheduler
+
+[Timer]
+OnBootSec=5sec
+OnUnitActiveSec=1day
+
+[Install]
+WantedBy=timers.target

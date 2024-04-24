@@ -1,0 +1,6 @@
+[Unit]
+Description=Switch light/dark modes on schedule
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'lua "${HOME}"/.config/systemd/user/colormode.lua'

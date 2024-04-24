@@ -1,0 +1,9 @@
+[Unit]
+Description=Switch light/dark modes on schedule (checks every hour)
+
+[Timer]
+OnBootSec=5sec
+OnUnitActiveSec=60min
+
+[Install]
+WantedBy=timers.target
