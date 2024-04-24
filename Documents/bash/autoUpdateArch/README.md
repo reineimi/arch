@@ -6,3 +6,5 @@ Just `cd` to this directory and run:
 bash enable.sh
 ```
 Note that this script will prompt a password confirmation dialogue, therefore you must enable it at the most convenient for you time.
+# Requirements
+[polkit](https://archlinux.org/packages/extra/x86_64/polkit/)
