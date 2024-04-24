@@ -7,7 +7,7 @@ Other files in the folder are **systemd** units and installation (**bash**) scri
 # Usage
 ### Note: It's recommended to run it at/after **:30
 Just `cd` to this folder and run the following command as current user:
-```bash
+```
 bash enable.sh
 ```
 
@@ -16,4 +16,4 @@ Since this is a Lua script - any other system can run it.<br>
 Just change the commands in the `exec` table accordingly, then include the script in your preferred scheduler.
 
 # Requirements
-lua *(programming language)*
+[lua](https://archlinux.org/packages/extra/x86_64/lua/)
