@@ -1,7 +1,7 @@
 `~/Documents/bash/autoUpdateArch`
 # Arch Linux automatic update scheduler
-A simple **daily** schedule for `sudo pacman -Syu` with desktop notification.
-Just `cd` to this directory and run:
+A simple **daily** schedule for `sudo pacman -Syu` with desktop notification.<br>
+Just `cd` to this folder and run the following command as current user:
 ```
 bash enable.sh
 ```
