@@ -1,3 +1,4 @@
+`~/Documents/bash/colorModeSched`
 # General info
 This is a simple Lua script that executes 2 commands to change color mode for the current user, 
 running on schedule according to current <ins>**season**</ins> and <ins>**time**</ins>.<br>
