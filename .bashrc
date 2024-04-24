@@ -35,7 +35,7 @@ alias del='sudo pacman -Rdd'
 alias wipe='sudo pacman -Rcns'
 alias upd='sudo pacman -Syy'
 alias fupd='sudo pacman -Syu'
-alias gpg='gpg --recv-keys'
+alias key='gpg --recv-keys'
 
 dbfix() {
 	printf 'Fixing pacman...\n';
