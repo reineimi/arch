@@ -2,6 +2,7 @@
 Description=Switch light/dark modes on schedule (checks every 60 min)
 
 [Timer]
+OnBootSec=0sec
 OnUnitActiveSec=60min
 
 [Install]
