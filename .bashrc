@@ -126,7 +126,7 @@ alias lu='clear; lua /media/Dev/lua/test.lua'
 alias tgbot='clear; node ~/Documents/tgbot/tgbot.js';
 alias flan='nano ~/.config/geany/colorschemes/flan.conf';
 alias nextjs='npx create-next-app@latest';
-alias bkup='lua ~/Documents/bash/backup.lua';
+alias bkup='lua ~/Documents/shell/backup.lua';
 
 pixv() {
 	cp -rvpn ~/Downloads/Pixiv_new/* /media/Pixiv;
@@ -167,5 +167,14 @@ webpr() {
 		for path in $(find . -name '*.png' -or -name '*.jpg'); do
 			rm -v $path;
 		done
+	fi
+}
+
+# Burn Windows ISO images
+winiso() {
+	if [ "$*" == "" ]; then
+		echo 'Usage: winiso (.iso file) (/dev/sd*)';
+	else
+		woeusb --device Windows7_x64.iso $2;
 	fi
 }
