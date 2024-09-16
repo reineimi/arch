@@ -60,8 +60,8 @@ alias untar='tar -xvf'
 
 cleanup() {
 	echo 'Cleaning up pacman cache...';
+	echo 'Memory to free:' `du -h /var/cache/pacman/pkg/`;
 	sudo rm -f /var/cache/pacman/pkg/*;
-	echo 'Total memory freed:' `du -h /var/cache/pacman/pkg/`;
 }
 
 dbfix() {
