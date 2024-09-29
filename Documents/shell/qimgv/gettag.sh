@@ -11,7 +11,7 @@ tags() {
 	for i in $(exiftool -P $1 -p '$keywords'); do
 		taglist+=$i;
 	done;
-	printf "%s" "${taglist[@]}";
+	echo "${taglist[@]}";
 }
 
 alert $(tags $1) 'Tags';
