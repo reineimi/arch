@@ -41,7 +41,7 @@ compr() {
 	fi;
 
 	if [[ -v "args[t]" ]]; then
-		echo threshlod_size = ${args[t]};
+		echo threshlod_size = ${args[t]} KB;
 	fi;
 
 	echo '';
@@ -53,13 +53,15 @@ compr() {
 				if [[ -v "args[t]" ]]; then
 					if (( $(du $path | cut -f 1) >= ${args[t]} )); then
 						$(IFS=\ ;echo "${cmd[*]}") $path;
+						if [[ $path != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
+							rm -v $path;
+						fi;
 					fi;
 				else
 					$(IFS=\ ;echo "${cmd[*]}") $path;
-				fi;
-
-				if [[ $path != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
-					rm -v $path;
+					if [[ $path != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
+						rm -v $path;
+					fi;
 				fi;
 			done;
 		done;
@@ -71,13 +73,15 @@ compr() {
 		if [[ -v "args[t]" ]]; then
 			if (( $(du $file | cut -f 1) >= ${args[t]} )); then
 				$(IFS=\ ;echo "${cmd[*]}") $file;
+				if [[ ${args[f]} != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
+					rm -v $file;
+				fi;
 			fi;
 		else
 			$(IFS=\ ;echo "${cmd[*]}") $file;
-		fi;
-
-		if [[ ${args[f]} != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
-			rm -v $file;
+			if [[ ${args[f]} != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
+				rm -v $file;
+			fi;
 		fi;
 	fi;
 }
