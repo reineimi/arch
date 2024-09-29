@@ -165,6 +165,7 @@ srv() {
 search() {
 	if [ "$*" == "" ]; then
 		echo 'Usage: search "<what>" <extension>';
+		return 1;
 	else
 		find . -name \*.$2 -print0 | xargs -0 grep -nF "$1";
 	fi
@@ -173,20 +174,23 @@ search() {
 # Compress image(s)
 compr() {
 	if [ "$*" == "" ]; then
-		echo 'Usage: compr [options]
-		Options:
-			q=quality (int)
-			f=filename (str)
-			e=extension (str)
-			v=verbose (true)
-			d=delete_originals (true)
+	echo 'Compress image(s)
+	Usage: compr [options]
 
-		Examples:
-			(Compress png to jpg):
-				compr f=test.png e=jpg q=95
-			(Recursive batch compression to webp):
-				compr e=webp q=85 v=1 d=1
-		';
+	Options:
+		q=quality (int)
+		f=filename (str)
+		e=extension (str)
+		v=verbose (true)
+		d=delete_originals (true)
+
+	Examples:
+		(Compress png to jpg):
+			compr f=test.png e=jpg q=95
+		(Recursive batch compression to webp):
+			compr e=webp q=85 v=1 d=1
+	';
+	return 1;
 	fi;
 
 	cmd=('magick mogrify -define preserve-timestamp=true');
@@ -237,10 +241,49 @@ compr() {
 	fi;
 }
 
+# Add EXIF tag(s) to image:  tag img.jpg some thing
+# perl-image-exiftool
+tag() {
+	file="$(readlink -f $1)";
+	for tag in "${@:2}"; do
+		exiftool -P -overwrite_original -keywords+=$tag $file;
+	done;
+}
+
+# Get a list of EXIF tags from the image
+tags() { exiftool -P -p '$filename $keywords' $1; }
+
+# Find images with EXIF tag; optionally copy them to DIR
+ftag() {
+	if [ "$*" == "" ]; then
+	echo 'Get images with EXIF tag; optionally copy them to DIR
+	Usage:
+		ftag my_tag
+		ftag my_tag ~/Pictures/my_tag
+	';
+	return 1;
+	fi;
+
+	files=();
+	for file in "$(exiftool -P -if '$keywords =~ /'$tag'/' -p '$directory/$filename' -r .)"; do
+		files+=("$(readlink -f $file)");
+	done;
+
+	if [ "$2" ]; then
+		mkdir -p $2;
+		for file in ${files[@]}; do
+			cp -vpn $file $2;
+		done;
+	else
+		echo files: $(IFS=\ ;echo "${files[*]}");
+	fi;
+}
+
 # Burn Windows ISO images
 winiso() {
 	if [ "$*" == "" ]; then
 		echo 'Usage: winiso <.iso file> </dev/sdX>';
+		return 1;
 	else
 		woeusb --device $1 $2;
 	fi
