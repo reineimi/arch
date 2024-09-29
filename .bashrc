@@ -242,7 +242,6 @@ compr() {
 }
 
 # Add EXIF tag(s) to image:  tag img.jpg some thing
-# perl-image-exiftool
 tag() {
 	file="$(readlink -f $1)";
 	for tag in "${@:2}"; do
