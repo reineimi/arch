@@ -1,6 +1,0 @@
-[Unit]
-Description=Arch Linux automatic update scheduler
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash -c 'notify-send "System Update" "Starting full system upgrade..."; pkexec /bin/bash -c "pacman -Syu --noconfirm; exit"'
