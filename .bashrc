@@ -121,6 +121,13 @@ syncdir() {
 	sudo rsync -axHAWXS --numeric-ids --info=progress2 $_src $_dest;
 }
 
+# Zenity dialogs
+prompt() { zenity --entry --title "$1"; }
+alert() {
+	title=${2:-'Information'};
+	zenity --info --text $1 --title $title;
+}
+
 	# OTHER
 
 alias ggamma='~/Documents/ggamma.py'
@@ -131,9 +138,7 @@ alias nextjs='npx create-next-app@latest';
 alias bkup='lua ~/Documents/shell/backup.lua';
 alias bt='sh ~/Documents/shell/MISC/ditoo.sh';
 
-pixv() {
-	cp -rvpn ~/Downloads/Pixiv_new/* /media/Pixiv;
-}
+pixv() { cp -rvpn ~/Downloads/Pixiv_new/* /media/Pixiv; }
 
 tgclear() {
 	rm -f ~/Downloads/Telegram\ Desktop/*;
@@ -178,17 +183,29 @@ compr() {
 	Usage: compr [options]
 
 	Options:
-		q=quality (int)
-		f=filename (str)
-		e=extension (str)
-		v=verbose (true)
-		d=delete_originals (true)
+	 (integer)
+		q=quality
+		s=size (KB) !(Does not work currently)!
+		t=threshlod_size (KB) (Minimal required size)
+
+	 (string)
+		f=filename
+		e=extension
+		r=resize (100 = Width) (x100 = Height) (100x100 = All)
+
+	 (binary bool)
+		v=verbose
+		d=delete_originals
 
 	Examples:
 		(Compress png to jpg):
 			compr f=test.png e=jpg q=95
+
 		(Recursive batch compression to webp):
 			compr e=webp q=85 v=1 d=1
+		
+		(Recursive batch compression for files larger than 1MB):
+			compr q=95 t=1000
 	';
 	return 1;
 	fi;
@@ -204,18 +221,35 @@ compr() {
 	done;
 
 	if [[ -v "args[v]" ]]; then
-		echo verb = true;
+		echo verbose = true;
 		cmd+=(" -verbose");
 	fi;
 
 	if [[ -v "args[q]" ]]; then
-		echo qual = ${args[q]};
+		echo quality = ${args[q]};
 		cmd+=(" -quality ${args[q]}");
 	fi;
 
 	if [[ -v "args[e]" ]]; then
-		echo ext = ${args[e]};
+		echo extension = ${args[e]};
 		cmd+=(" -format ${args[e]}");
+	fi;
+
+	if [[ -v "args[d]" ]]; then
+		echo overwrite = true
+	fi;
+
+	if [[ -v "args[r]" ]]; then
+		echo resize = ${args[r]};
+		cmd+=(" -resize ${args[r]}");
+	fi;
+
+	if [[ -v "args[s]" ]]; then
+		echo size = ${args[s]};
+	fi;
+
+	if [[ -v "args[t]" ]]; then
+		echo threshlod_size = ${args[t]};
 	fi;
 
 	echo '';
@@ -224,24 +258,39 @@ compr() {
 		formats=(jpg jpeg png webp tiff);
 		for ext in ${formats[@]}; do
 			for path in $(find ~+ -name "*.$ext"); do
-				$(IFS=\ ;echo "${cmd[*]}") $path;
-				if [[ -v "args[d]" ]] && [[ ${args[f]} != *\.${args[e]} ]]; then
+				if [[ -v "args[t]" ]]; then
+					if (( $(du $path | cut -f 1) >= ${args[t]} )); then
+						$(IFS=\ ;echo "${cmd[*]}") $path;
+					fi;
+				else
+					$(IFS=\ ;echo "${cmd[*]}") $path;
+				fi;
+
+				if [[ $path != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
 					rm -v $path;
 				fi;
-				echo '';
 			done;
 		done;
+
 	else
+
 		file="$(readlink -f "${args[f]}")";
-		$(IFS=\ ;echo "${cmd[*]}") $file;
-		if [[ -v "args[d]" ]] && [[ ${args[f]} != *\.${args[e]} ]]; then
+
+		if [[ -v "args[t]" ]]; then
+			if (( $(du $file | cut -f 1) >= ${args[t]} )); then
+				$(IFS=\ ;echo "${cmd[*]}") $file;
+			fi;
+		else
+			$(IFS=\ ;echo "${cmd[*]}") $file;
+		fi;
+
+		if [[ ${args[f]} != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
 			rm -v $file;
 		fi;
-		echo '';
 	fi;
 }
 
-# Add EXIF tag(s) to image:  tag img.jpg some thing
+# Add EXIF tag(s) to the image:  tag img.jpg some thing
 tag() {
 	file="$(readlink -f $1)";
 	for tag in "${@:2}"; do
@@ -250,10 +299,16 @@ tag() {
 }
 
 # Get a list of EXIF tags from the image
-tags() { exiftool -P -p '$filename $keywords' $1; }
+tags() {
+	taglist=();
+	for i in $(exiftool -P $1 -p '$keywords'); do
+		taglist+=$i;
+	done;
+	printf "%s" "${taglist[@]}";
+}
 
 # Find images with EXIF tag; optionally copy them to DIR
-ftag() {
+tagf() {
 	if [ "$*" == "" ]; then
 	echo 'Get images with EXIF tag; optionally copy them to DIR
 	Usage:
