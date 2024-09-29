@@ -1,0 +1,6 @@
+[Unit]
+Description=Internet Browser automatic update scheduler
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'pacman -Syy --noconfirm vivaldi'
