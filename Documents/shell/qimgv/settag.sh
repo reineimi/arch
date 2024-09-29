@@ -5,9 +5,11 @@ prompt() { zenity --entry --title "$1"; }
 
 tag() {
 	file="$(readlink -f $1)";
+	args=();
 	for tag in "${@:2}"; do
-		exiftool -P -overwrite_original -keywords+=$tag $file;
+		args+=("-keywords+=$tag ");
 	done;
+	exiftool -P -overwrite_original $(IFS=\ ;echo "${args[*]}") $file;
 }
 
 tag $1 $(prompt 'Tags (Keywords):');
