@@ -293,9 +293,11 @@ compr() {
 # Add EXIF tag(s) to the image:  tag img.jpg some thing
 tag() {
 	file="$(readlink -f $1)";
+	args=();
 	for tag in "${@:2}"; do
-		exiftool -P -overwrite_original -keywords+=$tag $file;
+		args+=("-keywords+=$tag ");
 	done;
+	exiftool -P -overwrite_original $(IFS=\ ;echo "${args[*]}") $file;
 }
 
 # Get a list of EXIF tags from the image
@@ -304,7 +306,7 @@ tags() {
 	for i in $(exiftool -P $1 -p '$keywords'); do
 		taglist+=$i;
 	done;
-	printf "%s" "${taglist[@]}";
+	echo "${taglist[@]}";
 }
 
 # Find images with EXIF tag; optionally copy them to DIR
