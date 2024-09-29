@@ -3,27 +3,7 @@
 # Compress image(s)
 # https://github.com/reineimi/arch/blob/x/.bashrc
 compr() {
-	if [ "$*" == "" ]; then
-		echo 'Usage: compr [options]
-		Options:
-			q=quality (int)
-			f=filename (str)
-			e=extension (str)
-			v=verbose (true)
-			d=delete_originals (true)
-
-		Examples:
-			(Compress png to jpg):
-				compr f=test.png e=jpg q=95
-			(Recursive batch compression to webp):
-				compr e=webp q=85 v=1 d=1
-		';
-	fi;
-
-	# Initial command line
 	cmd=('magick mogrify -define preserve-timestamp=true');
-
-	# (Options) KEY=VAL pairs
 	declare -A args;
 
 	for ARG in "$@"; do
@@ -55,7 +35,7 @@ compr() {
 		for ext in ${formats[@]}; do
 			for path in $(find ~+ -name "*.$ext"); do
 				$(IFS=\ ;echo "${cmd[*]}") $path;
-				if [[ -v "args[d]" ]]; then
+				if [[ -v "args[d]" ]] && [[ ${args[f]} != *\.${args[e]} ]]; then
 					rm -v $path;
 				fi;
 				echo '';
@@ -64,7 +44,7 @@ compr() {
 	else
 		file="$(readlink -f "${args[f]}")";
 		$(IFS=\ ;echo "${cmd[*]}") $file;
-		if [[ -v "args[d]" ]]; then
+		if [[ -v "args[d]" ]] && [[ ${args[f]} != *\.${args[e]} ]]; then
 			rm -v $file;
 		fi;
 		echo '';
