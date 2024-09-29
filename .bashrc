@@ -189,10 +189,7 @@ compr() {
 		';
 	fi;
 
-	# Initial command line
 	cmd=('magick mogrify -define preserve-timestamp=true');
-
-	# (Options) KEY=VAL pairs
 	declare -A args;
 
 	for ARG in "$@"; do
@@ -224,7 +221,7 @@ compr() {
 		for ext in ${formats[@]}; do
 			for path in $(find ~+ -name "*.$ext"); do
 				$(IFS=\ ;echo "${cmd[*]}") $path;
-				if [[ -v "args[d]" ]]; then
+				if [[ -v "args[d]" ]] && [[ ${args[f]} != *\.${args[e]} ]]; then
 					rm -v $path;
 				fi;
 				echo '';
@@ -233,7 +230,7 @@ compr() {
 	else
 		file="$(readlink -f "${args[f]}")";
 		$(IFS=\ ;echo "${cmd[*]}") $file;
-		if [[ -v "args[d]" ]]; then
+		if [[ -v "args[d]" ]] && [[ ${args[f]} != *\.${args[e]} ]]; then
 			rm -v $file;
 		fi;
 		echo '';
