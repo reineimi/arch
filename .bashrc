@@ -137,6 +137,7 @@ alias flan='nano ~/.config/geany/colorschemes/flan.conf';
 alias nextjs='npx create-next-app@latest';
 alias bkup='lua ~/Documents/shell/backup.lua';
 alias bt='sh ~/Documents/shell/MISC/ditoo.sh';
+alias pixitag='clear; lua ~/Documents/shell/MISC/pixitag.lua';
 
 pixv() { cp -rvpn ~/Downloads/Pixiv_new/* /media/Pixiv; }
 
@@ -318,14 +319,14 @@ tagf() {
 	if [ "$*" == "" ]; then
 	echo 'Get images with EXIF tag; optionally copy them to DIR
 	Usage:
-		ftag my_tag
-		ftag my_tag ~/Pictures/my_tag
+		tagf my_tag
+		tagf my_tag ~/Pictures/my_tag
 	';
 	return 1;
 	fi;
 
 	files=();
-	for file in "$(exiftool -P -if '$keywords =~ /'$tag'/' -p '$directory/$filename' -r .)"; do
+	for file in "$(exiftool -P -if '$keywords =~ /'$1'/' -p '$directory/$filename' -r .)"; do
 		files+=("$(readlink -f $file)");
 	done;
 
