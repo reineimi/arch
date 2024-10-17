@@ -8,7 +8,7 @@ tags
 tagf
 ```
 ## Oct 17 2024
-Set/unset Tor proxy and proxify shell instance
+(`funcs`) Set/unset Tor proxy and proxify shell instance
 ```
 settorproxy
 unsettorproxy
