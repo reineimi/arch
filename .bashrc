@@ -10,6 +10,8 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 unset HISTFILE
 
+command_not_found_handle() { printf '...\n'; }
+
 	# SYSTEM MANAGEMENT
 
 alias own='sudo chmod u=rwx'
@@ -28,9 +30,7 @@ uname() {
 	sudo echo "$1 ALL=(ALL:ALL) ALL" >> /etc/sudoers;
 }
 
-restart() {
-	sudo systemctl restart $1;
-}
+restart() { sudo systemctl restart $1; }
 
 	# SYSTEM CONFIG
 
@@ -84,8 +84,10 @@ aur() {
 
 	# NETWORK MANAGEMENT
 
+alias myip='curl -s ifconfig.me'
 alias bans='sudo iptables -L -n --line'
 
+# (Un-)Firewall specified IP address
 ban() {
 	sudo iptables -A INPUT -s $1 -j REJECT;
 	sudo iptables -A INPUT -s $1 -j DROP;
@@ -93,7 +95,6 @@ ban() {
 	sudo iptables -A FORWARD -s $1 -j DROP;
 	#sudo ipset add blacklist $1;
 }
-
 unban() {
 	sudo iptables -D INPUT -s $1 -j REJECT;
 	sudo iptables -D INPUT -s $1 -j DROP;
@@ -102,17 +103,77 @@ unban() {
 	#sudo ipset del blacklist $1;
 }
 
+# Set/unset Tor proxy
+settorproxy() {
+	export https_proxy="socks5://127.0.0.1:9050";
+	export http_proxy="socks5://127.0.0.1:9050";
+}
+unsettorproxy() {
+	unset https_proxy;
+	unset http_proxy;
+}
+
+# [Tor]ify shell instance (don't terminate it or proxy will remain)
+tor_shell_enabled=0;
+torsh() {
+	if [ $tor_shell_enabled == 0 ]; then
+		echo '-- (Write !q to quit, !h for help) --';
+		echo 'Entering Tor proxy...'
+		settorproxy;
+		printf "Current Tor exit node IP: $(curl -s ifconfig.me)\n\n";
+		tor_shell_enabled=1;
+	fi
+
+	read stdin;
+
+	if [[ "$stdin" == '!h' ]]; then
+		echo 'List of local commands:
+	!q - Quit Tor proxy
+	!h - Show this menu
+	!i - Install Tor
+	!r - Request new circuit
+	';
+	fi
+
+	if [[ "$stdin" == '!i' ]]; then
+		unsettorproxy;
+		sudo pacman -Syy tor;
+		sudo systemctl enable --now tor.service;
+		set +o history;
+		printf 'Enter new Tor password: ';
+		read -s _pwd;
+		echo 'HashedControlPassword' `tor --hash-password $_pwd` | sudo tee -a /etc/tor/torrc;
+		set -o history;
+		sudo systemctl restart tor.service;
+		settorproxy;
+	fi;
+
+	if [[ "$stdin" == '!r' ]]; then
+		unsettorproxy;
+		sudo systemctl restart tor.service;
+		settorproxy;
+		printf "New Tor exit node IP: $(curl -s ifconfig.me)\n\n";
+	fi
+
+	if [[ "$stdin" != '!q' ]]; then
+		$stdin; torsh;
+	else
+		echo 'Exiting Tor proxy...';
+		tor_shell_enabled=0;
+		unsettorproxy;
+		return 1;
+	fi
+}
+
 	# DESKTOP MANAGEMENT
 
 alias ldm='sudo nano /etc/lightdm/lightdm.conf'
 alias useldm='systemctl disable gdm && systemctl enable lightdm && reboot'
 alias usegdm='systemctl disable lightdm && systemctl enable gdm && reboot'
-alias sscl='rm -rfv ~/Pictures/Screenshots/* && echo "Screenshots cleared"'
+alias ssclear='rm -rfv ~/Pictures/Screenshots/* && echo "Screenshots cleared"'
 alias apps='dir /usr/share/applications'
 
-app() {
-	sudo nano /usr/share/applications/$1.desktop;
-}
+app() { sudo nano /usr/share/applications/$1.desktop; }
 
 syncdir() {
 	echo 'Syncing directories...';
@@ -132,12 +193,12 @@ alert() {
 
 alias ggamma='~/Documents/ggamma.py'
 alias lu='clear; lua /media/Dev/lua/test.lua'
-alias tgbot='clear; node ~/Documents/tgbot/tgbot.js';
-alias flan='nano ~/.config/geany/colorschemes/flan.conf';
-alias nextjs='npx create-next-app@latest';
-alias bkup='lua ~/Documents/shell/backup.lua';
-alias bt='sh ~/Documents/shell/MISC/ditoo.sh';
-alias pixitag='clear; lua ~/Documents/shell/MISC/pixitag.lua';
+alias tgbot='clear; node ~/Documents/tgbot/tgbot.js'
+alias flan='nano ~/.config/geany/colorschemes/flan.conf'
+alias nextjs='npx create-next-app@latest'
+alias bkup='lua ~/Documents/shell/backup.lua'
+alias bt='sh ~/Documents/shell/MISC/ditoo.sh'
+alias pixitag='clear; lua ~/Documents/shell/MISC/pixitag.lua'
 
 pixv() { cp -rvpn ~/Downloads/Pixiv_new/* /media/Pixiv; }
 
