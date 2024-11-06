@@ -30,6 +30,21 @@ uname() {
 	sudo echo "$1 ALL=(ALL:ALL) ALL" >> /etc/sudoers;
 }
 
+# Search for files that contain specified <string>
+search() {
+	if [ "$*" == "" ]; then
+		echo 'Usage: search "<what>" <flietypes>';
+		return 1;
+	else
+		str="$1";
+		for ft in "$@"; do
+			if [[ $ft != $str ]]; then
+				grep -rn --include=\*.$ft "$str" .;
+			fi
+		done
+	fi
+}
+
 restart() { sudo systemctl restart $1; }
 
 	# SYSTEM CONFIG
@@ -199,6 +214,8 @@ alias nextjs='npx create-next-app@latest'
 alias bkup='lua ~/Documents/shell/backup.lua'
 alias bt='sh ~/Documents/shell/MISC/ditoo.sh'
 alias pixitag='clear; lua ~/Documents/shell/MISC/pixitag.lua'
+alias crawl='cd ~/Documents/lua/crawl; clear; lua crawl.lua'
+alias ngx='cd /srv/nginx; sh srv.sh'
 
 pixv() { cp -rvpn ~/Downloads/Pixiv_new/* /media/Pixiv; }
 
@@ -225,16 +242,6 @@ srv() {
 		sudo systemctl start httpd;
 		sudo sync && echo 3 | sudo tee /proc/sys/vm/drop_caches;
 		echo 'Apache status: Cache cleared, Rebooted, ON';
-	fi
-}
-
-# Search for files that contain specified <string>
-search() {
-	if [ "$*" == "" ]; then
-		echo 'Usage: search "<what>" <extension>';
-		return 1;
-	else
-		find . -name \*.$2 -print0 | xargs -0 grep -nF "$1";
 	fi
 }
 
