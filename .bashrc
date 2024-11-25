@@ -259,7 +259,8 @@ compr() {
 
 	 (string)
 		f=filename
-		e=extension
+		E=input_extension
+		e=output_extension
 		r=resize (100 = Width) (x100 = Height) (100x100 = All)
 
 	 (binary bool)
@@ -299,8 +300,12 @@ compr() {
 		cmd+=(" -quality ${args[q]}");
 	fi;
 
+	if [[ -v "args[E]" ]]; then
+		echo input_extension = ${args[E]};
+	fi;
+
 	if [[ -v "args[e]" ]]; then
-		echo extension = ${args[e]};
+		echo output_extension = ${args[e]};
 		cmd+=(" -format ${args[e]}");
 	fi;
 
@@ -324,23 +329,25 @@ compr() {
 	echo '';
 
 	if [[ ! -v "args[f]" ]]; then
-		formats=(jpg jpeg png webp tiff);
+		formats=(jpg JPG jpeg JPEG png PNG webp WEBP tiff TIFF heic HEIC);
 		for ext in ${formats[@]}; do
-			for path in $(find ~+ -name "*.$ext"); do
-				if [[ -v "args[t]" ]]; then
-					if (( $(du $path | cut -f 1) >= ${args[t]} )); then
+			if [[ ! -v "args[E]" ]] || [[ $ext == ${args[E]} ]]; then
+				for path in $(find ~+ -name "*.$ext"); do
+					if [[ -v "args[t]" ]]; then
+						if (( $(du $path | cut -f 1) >= ${args[t]} )); then
+							$(IFS=\ ;echo "${cmd[*]}") $path;
+							if [[ $path != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
+								rm -v $path;
+							fi;
+						fi;
+					else
 						$(IFS=\ ;echo "${cmd[*]}") $path;
 						if [[ $path != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
 							rm -v $path;
 						fi;
 					fi;
-				else
-					$(IFS=\ ;echo "${cmd[*]}") $path;
-					if [[ $path != *.${args[e]} ]] && [[ -v "args[d]" ]]; then
-						rm -v $path;
-					fi;
-				fi;
-			done;
+				done;
+			fi;
 		done;
 
 	else
