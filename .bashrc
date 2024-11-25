@@ -329,7 +329,7 @@ compr() {
 	echo '';
 
 	if [[ ! -v "args[f]" ]]; then
-		formats=(jpg JPG jpeg JPEG png PNG webp WEBP tiff TIFF heic HEIC);
+		formats=(jpg JPG jpeg JPEG png PNG webp WEBP tiff TIFF heic HEIC heif HEIF);
 		for ext in ${formats[@]}; do
 			if [[ ! -v "args[E]" ]] || [[ $ext == ${args[E]} ]]; then
 				for path in $(find ~+ -name "*.$ext"); do
